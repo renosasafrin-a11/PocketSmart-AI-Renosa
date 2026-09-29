@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Home Planner - PocketSmart AI</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">PocketSmart AI</div>
+
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <div class="form-container">
+
+        <h1>🏠 Home Decor Planner</h1>
+
+        <p>
+            Enter your budget and preferences to get smart recommendations.
+        </p>
+
+
+        <form id="homePlannerForm">
+
+            <div class="form-group">
+                <label>Budget (₹)</label>
+
+                <input
+                    type="number"
+                    name="budget"
+                    placeholder="Example: 10000"
+                    required
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label>Room Type</label>
+
+                <select name="room_type" required>
+                    <option value="">Select room</option>
+                    <option value="Living Room">Living Room</option>
+                    <option value="Bedroom">Bedroom</option>
+                    <option value="Kitchen">Kitchen</option>
+                    <option value="Study Room">Study Room</option>
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <label>Style</label>
+
+                <select name="style" required>
+                    <option value="">Select style</option>
+                    <option value="Modern">Modern</option>
+                    <option value="Minimalist">Minimalist</option>
+                    <option value="Traditional">Traditional</option>
+                    <option value="Bohemian">Bohemian</option>
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <label>Additional Requirements</label>
+
+                <textarea
+                    name="requirements"
+                    placeholder="Example: I need affordable wall decor and lighting."
+                ></textarea>
+            </div>
+
+
+            <button type="submit" class="btn">
+                Generate Recommendations
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Results -->
+
+    <div
+        id="results"
+        class="container"
+        style="display: none;"
+    >
+
+        <h2 style="margin-top: 40px;">
+            ✨ Your Recommendations
+        </h2>
+
+        <div
+            id="recommendationCards"
+            class="cards"
+        ></div>
+
+    </div>
+
+
+    <footer>
+        <p>© 2026 PocketSmart AI</p>
+    </footer>
+
+
+    <script>
+
+        const form = document.getElementById("homePlannerForm");
+
+        const results = document.getElementById("results");
+
+        const recommendationCards =
+            document.getElementById("recommendationCards");
+
+
+        form.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const formData = new FormData(form);
+
+
+            const button =
+                form.querySelector("button[type='submit']");
+
+            button.disabled = true;
+
+            button.textContent = "Generating...";
+
+
+            try {
+
+                const response = await fetch(
+                    "/planner/generate-home",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                recommendationCards.innerHTML = "";
+
+
+                const recommendations =
+                    data.result.recommendations;
+
+
+                recommendations.forEach(function(item) {
+
+                    const card = document.createElement("div");
+
+                    card.className = "card";
+
+
+                    card.innerHTML = `
+
+                        <h2>${item.name}</h2>
+
+                        <p>
+                            <strong>Category:</strong>
+                            ${item.category}
+                        </p>
+
+                        <p>
+                            <strong>Price:</strong>
+                            ₹${item.price}
+                        </p>
+
+                        <p>
+                            <strong>Platform:</strong>
+                            ${item.platform}
+                        </p>
+
+                        <p>
+                            <strong>Why:</strong>
+                            ${item.reason}
+                        </p>
+
+                    `;
+
+
+                    recommendationCards.appendChild(card);
+
+                });
+
+
+                results.style.display = "block";
+
+
+                results.scrollIntoView({
+                    behavior: "smooth"
+                });
+
+
+            } catch (error) {
+
+                alert(
+                    "Something went wrong. Please try again."
+                );
+
+            }
+
+
+            button.disabled = false;
+
+            button.textContent =
+                "Generate Recommendations";
+
+        });
+
+    </script>
+
+</body>
+</html>

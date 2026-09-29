@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Party Planner - PocketSmart AI</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+
+            <div class="logo">
+                PocketSmart AI
+            </div>
+
+            <ul class="nav-links">
+                <li>
+                    <a href="/">Home</a>
+                </li>
+
+                <li>
+                    <a href="/planner/home">
+                        Home Planner
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+
+
+    <div class="form-container">
+
+        <h1>🎉 Party Planner</h1>
+
+        <p>
+            Enter your party details and get smart
+            budget-friendly recommendations.
+        </p>
+
+
+        <form id="partyPlannerForm">
+
+            <div class="form-group">
+
+                <label>Budget (₹)</label>
+
+                <input
+                    type="number"
+                    name="budget"
+                    placeholder="Example: 5000"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Event Type</label>
+
+                <select name="event_type" required>
+
+                    <option value="">
+                        Select event
+                    </option>
+
+                    <option value="Birthday">
+                        Birthday
+                    </option>
+
+                    <option value="Wedding">
+                        Wedding
+                    </option>
+
+                    <option value="Baby Shower">
+                        Baby Shower
+                    </option>
+
+                    <option value="Engagement">
+                        Engagement
+                    </option>
+
+                    <option value="Get Together">
+                        Get Together
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Number of Guests</label>
+
+                <input
+                    type="number"
+                    name="guests"
+                    placeholder="Example: 20"
+                    min="1"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Theme</label>
+
+                <input
+                    type="text"
+                    name="theme"
+                    placeholder="Example: Pink and Gold"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn"
+            >
+                Generate Recommendations
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Results -->
+
+    <div
+        id="results"
+        class="container"
+        style="display: none;"
+    >
+
+        <h2 style="margin-top: 40px;">
+            ✨ Your Party Recommendations
+        </h2>
+
+        <div
+            id="recommendationCards"
+            class="cards"
+        ></div>
+
+    </div>
+
+
+    <footer>
+
+        <p>
+            © 2026 PocketSmart AI
+        </p>
+
+    </footer>
+
+
+    <script>
+
+        const form =
+            document.getElementById("partyPlannerForm");
+
+        const results =
+            document.getElementById("results");
+
+        const recommendationCards =
+            document.getElementById(
+                "recommendationCards"
+            );
+
+
+        form.addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+
+                const formData =
+                    new FormData(form);
+
+
+                const button =
+                    form.querySelector(
+                        "button[type='submit']"
+                    );
+
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Generating...";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/planner/generate-party",
+                            {
+                                method: "POST",
+                                body: formData
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    recommendationCards.innerHTML = "";
+
+
+                    const recommendations =
+                        data.result.recommendations;
+
+
+                    recommendations.forEach(
+                        function(item) {
+
+                            const card =
+                                document.createElement(
+                                    "div"
+                                );
+
+
+                            card.className =
+                                "card";
+
+
+                            card.innerHTML = `
+
+                                <h2>
+                                    ${item.name}
+                                </h2>
+
+                                <p>
+                                    <strong>
+                                        Category:
+                                    </strong>
+                                    ${item.category}
+                                </p>
+
+                                <p>
+                                    <strong>
+                                        Price:
+                                    </strong>
+                                    ₹${item.price}
+                                </p>
+
+                                <p>
+                                    <strong>
+                                        Platform:
+                                    </strong>
+                                    ${item.platform}
+                                </p>
+
+                                <p>
+                                    <strong>
+                                        Why:
+                                    </strong>
+                                    ${item.reason}
+                                </p>
+
+                            `;
+
+
+                            recommendationCards
+                                .appendChild(card);
+
+                        }
+                    );
+
+
+                    results.style.display =
+                        "block";
+
+
+                    results.scrollIntoView({
+                        behavior: "smooth"
+                    });
+
+
+                } catch (error) {
+
+                    alert(
+                        "Something went wrong. Please try again."
+                    );
+
+                }
+
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Generate Recommendations";
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
